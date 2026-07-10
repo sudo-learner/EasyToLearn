@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — EasyToLearn</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { min-height:100vh; display:flex; flex-direction:column; }
+
+    .login-page {
+      flex:1; display:flex; align-items:center; justify-content:center;
+      padding:80px 24px 40px; position:relative; z-index:1;
+    }
+
+    /* Soft orb behind the card */
+    .login-page::before {
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background: radial-gradient(ellipse 700px 500px at 50% 40%,
+        rgba(124,113,240,.12) 0%, transparent 70%);
+    }
+
+    .login-card {
+      width:100%; max-width:440px; position:relative; z-index:1;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px 40px 40px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.4);
+    }
+
+    .login-logo {
+      display:flex; flex-direction:column; align-items:center; margin-bottom:32px; gap:14px;
+    }
+    .login-logo-img {
+      width:64px; height:64px; border-radius:16px; overflow:hidden;
+      box-shadow:0 0 28px rgba(124,113,240,.45);
+    }
+    .login-logo-img img { width:100%; height:100%; object-fit:cover; display:block; }
+    .login-logo-name {
+      font-family: var(--font-display); font-size:22px; font-weight:800; color:var(--white);
+    }
+    .login-logo-sub {
+      font-size:13px; color:var(--text-secondary); margin-top:-8px; text-align:center;
+    }
+
+    .login-title {
+      font-family:var(--font-display); font-size:20px; font-weight:700;
+      color:var(--white); margin-bottom:6px;
+    }
+    .login-desc { font-size:13px; color:var(--text-secondary); margin-bottom:28px; }
+
+    .form-group { margin-bottom:18px; }
+    .form-label {
+      display:block; font-family:var(--font-mono); font-size:11px; font-weight:500;
+      color:var(--text-secondary); text-transform:uppercase; letter-spacing:.07em;
+      margin-bottom:8px;
+    }
+    .form-input {
+      width:100%; padding:12px 16px;
+      background:var(--bg-3); border:1px solid var(--border);
+      border-radius:var(--r); color:var(--text-primary);
+      font-family:var(--font-body); font-size:15px;
+      transition:border-color .2s, box-shadow .2s; outline:none;
+    }
+    .form-input:focus {
+      border-color:var(--indigo);
+      box-shadow:0 0 0 3px rgba(124,113,240,.15);
+    }
+    .form-input::placeholder { color:var(--text-muted); }
+
+    .login-btn {
+      width:100%; padding:14px; margin-top:8px;
+      background:var(--indigo); color:#fff;
+      font-family:var(--font-body); font-size:15px; font-weight:700;
+      border:none; border-radius:var(--r); cursor:pointer;
+      transition:background .2s, transform .15s, box-shadow .2s;
+      box-shadow:0 4px 20px rgba(124,113,240,.4);
+    }
+    .login-btn:hover {
+      background:#6860e0; transform:translateY(-1px);
+      box-shadow:0 8px 28px rgba(124,113,240,.5);
+    }
+    .login-btn:active { transform:translateY(0); }
+
+    .login-error {
+      display:none; margin-top:14px; padding:10px 14px;
+      background:var(--rose-dim); border:1px solid rgba(244,112,103,.3);
+      border-radius:var(--r); font-size:13px; color:var(--rose); text-align:center;
+    }
+
+    .login-note {
+      margin-top:24px; padding-top:20px;
+      border-top:1px solid var(--border-soft);
+      font-size:12px; color:var(--text-secondary); text-align:center; line-height:1.6;
+    }
+    .login-note strong { color:var(--text-primary); }
+
+    .login-guest {
+      display:block; text-align:center; margin-top:14px;
+      font-size:13px; color:var(--text-secondary);
+      text-decoration:none; transition:color .2s;
+    }
+    .login-guest:hover { color:var(--indigo); }
+
+    /* Feature chips */
+    .login-features {
+      display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px; justify-content:center;
+    }
+    .login-chip {
+      font-family:var(--font-mono); font-size:10px;
+      padding:4px 10px; border-radius:99px;
+      background:var(--bg-3); border:1px solid var(--border);
+      color:var(--text-secondary);
+    }
+  </style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7C71F0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EasyToLearn">
+  <link rel="apple-touch-icon" href="assets/icon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+</head>
+<body>
+
+<!-- Simple nav: logo only -->
+<nav class="site-nav">
+  <div class="inner">
+    <a href="index.html" class="brand">
+      <div class="brand-badge">
+        <img data-icon="etl" alt="EasyToLearn" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+      EasyToLearn
+    </a>
+    <a href="index.html" class="back-pill">← Home</a>
+  </div>
+</nav>
+
+<div class="login-page">
+  <div class="login-card">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="login-logo-img">
+        <img data-icon="etl" alt="EasyToLearn" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+      <div class="login-logo-name">EasyToLearn</div>
+      <div class="login-logo-sub">Track your progress across 107 topics</div>
+    </div>
+
+    <!-- Feature chips -->
+    <div class="login-features">
+      <span class="login-chip">✓ 107 Topics</span>
+      <span class="login-chip">✓ Progress Saved</span>
+      <span class="login-chip">✓ 100% Free</span>
+    </div>
+
+    <div class="login-title">Sign in to your account</div>
+    <div class="login-desc">Enter your name and email — we'll send you a magic link, no password needed.</div>
+
+    <div class="form-group">
+      <label class="form-label" for="inp-name">Your Name</label>
+      <input class="form-input" id="inp-name" type="text" placeholder="e.g. Alex" autocomplete="name">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="inp-email">Email Address</label>
+      <input class="form-input" id="inp-email" type="email" placeholder="you@example.com" autocomplete="email">
+    </div>
+
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Send Magic Link →</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-success" id="login-success" style="display:none;margin-top:14px;padding:10px 14px;background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.3);border-radius:var(--r);font-size:13px;color:#3FB950;text-align:center;"></div>
+
+    <div class="login-note">
+      <strong>No password needed.</strong> Your progress is saved to your account
+      via Supabase, so it follows you across devices and browsers.
+    </div>
+
+    <a href="index.html" class="login-guest">Continue without saving progress →</a>
+
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="brand-badge" style="width:26px;height:26px;border-radius:7px;">
+          <img data-icon="etl" alt="EasyToLearn" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+        EasyToLearn
+      </div>
+      <div class="footer-copy">Free forever · No account required</div>
+      <div class="footer-links">
+        <a href="foundation.html">Foundation</a>
+        <a href="networking.html">Networking</a>
+        <a href="linux.html">Linux</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/icon.js"></script>
+<script>
+  // If already logged in (or just verified a magic link), go to dashboard
+  (async function() {
+    await ETLAuth.applyPendingName();
+    const user = await ETLAuth.getUser();
+    if (user) {
+      await ETLAuth.pullAndMergeProgress();
+      const p = new URLSearchParams(window.location.search);
+      window.location.href = p.get('redirect') || 'dashboard.html';
+    }
+  })();
+
+  async function doLogin() {
+    const name  = document.getElementById('inp-name').value.trim();
+    const email = document.getElementById('inp-email').value.trim();
+    const errEl = document.getElementById('login-error');
+    const okEl  = document.getElementById('login-success');
+    const btn   = document.getElementById('login-btn');
+    errEl.style.display = 'none';
+    okEl.style.display = 'none';
+
+    if (!name) { showErr('Please enter your name.'); return; }
+    if (!email || !email.includes('@') || !email.includes('.')) {
+      showErr('Please enter a valid email address.'); return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    const { error } = await ETLAuth.sendMagicLink(email, name);
+
+    btn.disabled = false;
+    btn.textContent = 'Send Magic Link →';
+
+    if (error) {
+      showErr(error.message || 'Something went wrong. Please try again.');
+      return;
+    }
+    okEl.textContent = '✓ Check your inbox! We sent a sign-in link to ' + email + '.';
+    okEl.style.display = 'block';
+  }
+
+  function showErr(msg) {
+    const el = document.getElementById('login-error');
+    el.textContent = msg; el.style.display = 'block';
+  }
+
+  // Allow Enter key to submit
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+
+<div id="pwa-install-bar" style="display:none;position:fixed;bottom:20px;right:20px;z-index:9999;">
+  <button id="pwa-install-btn" onclick="doPWAInstall()" style="
+    display:flex;align-items:center;gap:10px;
+    font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;
+    padding:12px 20px;border-radius:99px;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#7C71F0,#5a52d5);
+    color:#fff;box-shadow:0 6px 24px rgba(124,113,240,.5);
+    transition:transform .2s,box-shadow .2s;white-space:nowrap;"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 10px 32px rgba(124,113,240,.65)'"
+    onmouseout="this.style.transform='';this.style.boxShadow='0 6px 24px rgba(124,113,240,.5)'">
+    <img id="pwa-btn-icon" data-icon="etl" alt="" style="width:24px;height:24px;border-radius:6px;object-fit:cover;display:block;">
+    ⬇ Install App
+  </button>
+</div>
+<script>
+// Service Worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+// PWA Install prompt
+let _pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  const bar = document.getElementById('pwa-install-bar');
+  if(bar) bar.style.display = 'block';
+});
+function doPWAInstall() {
+  if(!_pwaPrompt) return;
+  _pwaPrompt.prompt();
+  _pwaPrompt.userChoice.then(() => {
+    _pwaPrompt = null;
+    const bar = document.getElementById('pwa-install-bar');
+    if(bar) bar.style.display = 'none';
+  });
+}
+// Hide after installed
+window.addEventListener('appinstalled', () => {
+  const bar = document.getElementById('pwa-install-bar');
+  if(bar) bar.style.display = 'none';
+  _pwaPrompt = null;
+});
+</script>
+</body>
+</html>

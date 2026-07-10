@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linux Mastery — EasyToLearn</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style> :root { --accent-color: var(--track-l); } </style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7C71F0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EasyToLearn">
+  <link rel="apple-touch-icon" href="assets/icon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="inner">
+    <a href="index.html" class="brand">
+      <div class="brand-badge"><img data-icon="etl" alt="EasyToLearn" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+      EasyToLearn
+    </a>
+    <a href="index.html" class="back-pill">← All tracks</a>
+  </div>
+</nav>
+
+<header class="track-header">
+  <div class="container">
+    <div class="track-header-inner">
+      <div class="track-header-icon" style="background:var(--mint-dim);border:1px solid rgba(63,185,80,.25);">🐧</div>
+      <div>
+        <h1>Linux Mastery</h1>
+        <p>From your first terminal command through file permissions, processes, scripting, and system hardening — all in plain English. 36 topics, basic to advanced.</p>
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span>YOUR PROGRESS</span>
+        <span id="progress-text" style="color:var(--track-l)">0 / 36 completed</span>
+      </div>
+      <div class="progress-track">
+        <div id="progress-fill" class="progress-fill" style="background:var(--track-l);"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="container" style="padding:44px 0 80px;position:relative;z-index:1;">
+  <div id="topic-list"></div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="brand-badge" style="width:26px;height:26px;border-radius:7px;"><img data-icon="etl" alt="EasyToLearn" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+        EasyToLearn
+      </div>
+      <div class="footer-copy">Free forever · Hosted on GitHub Pages</div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="networking.html">Networking</a>
+        <a href="foundation.html">Foundation</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/linux-topics-data.js"></script>
+<script src="js/icon.js"></script>
+<script src="js/nav.js"></script>
+<script>
+  function getCompleted() {
+    try { return JSON.parse(localStorage.getItem('etl_completed_linux') || '[]'); } catch(e) { return []; }
+  }
+  const sections  = getLinuxTopicsBySection();
+  const completed = getCompleted();
+  const total     = LINUX_TOPICS.length;
+  const done      = LINUX_TOPICS.filter(t => completed.includes(t.id)).length;
+  document.getElementById('progress-text').textContent = done + ' / ' + total + ' completed';
+  document.getElementById('progress-fill').style.width = Math.round((done/total)*100) + '%';
+
+  document.getElementById('topic-list').innerHTML = Object.keys(sections).map(sec => `
+    <div class="route-section">
+      <div class="section-label">${sec}</div>
+      <div class="route">
+        ${sections[sec].map(t => {
+          const isDone = completed.includes(t.id);
+          return `<div class="node ${isDone ? 'node-done' : ''}">
+            <a href="topic.html?id=${t.id}&track=linux">
+              <span class="node-num">${String(t.number).padStart(2,'0')}</span>
+              <span class="node-title">${t.title}</span>
+              <span class="node-summary">${t.summary}</span>
+              ${isDone
+                ? '<span class="done-badge" title="Completed">✓</span>'
+                : `<span class="node-diff diff-${t.difficulty}">${t.difficulty}</span>`}
+            </a>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+</script>
+
+<div id="pwa-install-bar" style="display:none;position:fixed;bottom:20px;right:20px;z-index:9999;">
+  <button id="pwa-install-btn" onclick="doPWAInstall()" style="
+    display:flex;align-items:center;gap:10px;
+    font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;
+    padding:12px 20px;border-radius:99px;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#7C71F0,#5a52d5);
+    color:#fff;box-shadow:0 6px 24px rgba(124,113,240,.5);
+    transition:transform .2s,box-shadow .2s;white-space:nowrap;"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 10px 32px rgba(124,113,240,.65)'"
+    onmouseout="this.style.transform='';this.style.boxShadow='0 6px 24px rgba(124,113,240,.5)'">
+    <img id="pwa-btn-icon" data-icon="etl" alt="" style="width:24px;height:24px;border-radius:6px;object-fit:cover;display:block;">
+    ⬇ Install App
+  </button>
+</div>
+<script>
+// Service Worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+// PWA Install prompt
+let _pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  const bar = document.getElementById('pwa-install-bar');
+  if(bar) bar.style.display = 'block';
+});
+function doPWAInstall() {
+  if(!_pwaPrompt) return;
+  _pwaPrompt.prompt();
+  _pwaPrompt.userChoice.then(() => {
+    _pwaPrompt = null;
+    const bar = document.getElementById('pwa-install-bar');
+    if(bar) bar.style.display = 'none';
+  });
+}
+// Hide after installed
+window.addEventListener('appinstalled', () => {
+  const bar = document.getElementById('pwa-install-bar');
+  if(bar) bar.style.display = 'none';
+  _pwaPrompt = null;
+});
+</script>
+</body>
+</html>

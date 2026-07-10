@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — EasyToLearn</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Dashboard-specific styles ── */
+    .dash-page { position:relative; z-index:1; padding:48px 0 80px; }
+
+    /* Welcome hero */
+    .dash-welcome {
+      background: linear-gradient(135deg, rgba(124,113,240,.15) 0%, rgba(63,185,80,.08) 100%);
+      border: 1px solid rgba(124,113,240,.2);
+      border-radius: 20px; padding: 36px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 24px; flex-wrap: wrap; margin-bottom: 40px;
+    }
+    .dash-welcome-left { display:flex; align-items:center; gap:20px; }
+    .dash-avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--indigo), #3FB950);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 800; color: #fff;
+      font-family: var(--font-display); flex-shrink:0;
+      box-shadow: 0 0 24px rgba(124,113,240,.4);
+    }
+    .dash-welcome-name {
+      font-family: var(--font-display); font-size: 24px;
+      font-weight: 800; color: var(--white); margin-bottom: 4px;
+    }
+    .dash-welcome-sub { font-size: 14px; color: var(--text-secondary); }
+    .dash-welcome-stats {
+      display: flex; gap: 28px; flex-wrap: wrap;
+    }
+    .dash-stat {
+      text-align: center;
+      padding: 12px 20px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; min-width: 80px;
+    }
+    .dash-stat-num {
+      font-family: var(--font-display); font-size: 28px;
+      font-weight: 800; color: var(--white); line-height:1;
+    }
+    .dash-stat-lbl { font-size: 11px; color: var(--text-secondary); margin-top:4px; }
+
+    /* Section headings */
+    .dash-section-title {
+      font-family: var(--font-display); font-size: 17px; font-weight: 700;
+      color: var(--white); margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .dash-section-title::after {
+      content: ""; flex:1; height:1px; background: var(--border-soft);
+    }
+
+    /* Overall progress ring */
+    .dash-overview {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px; margin-bottom: 40px;
+    }
+    @media(max-width:700px){ .dash-overview { grid-template-columns:1fr; } }
+
+    /* Track progress cards */
+    .track-progress-card {
+      background: var(--bg-2); border: 1px solid var(--border-soft);
+      border-radius: 16px; padding: 28px 24px;
+      display: flex; flex-direction: column; gap: 16px;
+      transition: border-color .2s, transform .2s;
+    }
+    .track-progress-card:hover { border-color: var(--track-color); transform: translateY(-3px); }
+    .track-card-top {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .track-card-icon-name {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .track-card-emoji {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+    }
+    .track-card-name {
+      font-family: var(--font-display); font-size: 16px;
+      font-weight: 700; color: var(--white);
+    }
+    .track-card-count { font-size: 12px; color: var(--text-secondary); margin-top:2px; }
+    .track-pct {
+      font-family: var(--font-display); font-size: 28px; font-weight: 800;
+      color: var(--white); line-height:1;
+    }
+
+    /* Progress bar inside card */
+    .track-bar-wrap { }
+    .track-bar-bg { height: 8px; background: var(--bg-3); border-radius:99px; overflow:hidden; }
+    .track-bar-fill { height:100%; border-radius:99px; transition:width .6s ease; }
+
+    .track-bar-meta {
+      display: flex; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--text-secondary); margin-top: 8px;
+    }
+
+    .track-card-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-body); font-size: 13px; font-weight: 700;
+      padding: 9px 16px; border-radius: var(--r);
+      text-decoration: none; transition: opacity .2s, transform .15s;
+      border: 1px solid; width:fit-content;
+    }
+    .track-card-btn:hover { opacity:.85; transform:translateX(3px); }
+
+    /* Recent activity */
+    .recent-list { display:flex; flex-direction:column; gap:8px; }
+    .recent-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 16px; background: var(--bg-2);
+      border: 1px solid var(--border-soft); border-radius: var(--r);
+    }
+    .recent-check {
+      width: 28px; height: 28px; border-radius: 8px; flex-shrink:0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800;
+    }
+    .recent-info { flex:1; min-width:0; }
+    .recent-title { font-size:14px; font-weight:600; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .recent-track { font-size:11px; color:var(--text-secondary); margin-top:2px; }
+    .recent-link {
+      font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary);
+      text-decoration: none; transition:color .2s; flex-shrink:0;
+    }
+    .recent-link:hover { color: var(--indigo); }
+
+    /* Empty states */
+    .empty-state {
+      text-align:center; padding:48px 24px;
+      background: var(--bg-2); border: 1px dashed var(--border);
+      border-radius: 16px; color: var(--text-secondary); font-size:14px;
+    }
+    .empty-state .empty-icon { font-size:40px; margin-bottom:14px; }
+    .empty-state strong { display:block; color:var(--text-primary); font-size:16px; margin-bottom:8px; }
+
+    /* Achievement badges */
+    .badges-grid { display:flex; gap:12px; flex-wrap:wrap; }
+    .badge-item {
+      padding: 10px 16px; border-radius: 10px;
+      border: 1px solid; display:flex; align-items:center; gap:10px;
+      font-size: 13px; font-weight: 600;
+    }
+    .badge-icon { font-size:20px; }
+
+    /* Logout button */
+    .logout-btn {
+      display:inline-flex; align-items:center; gap:6px;
+      font-family: var(--font-mono); font-size:12px;
+      color: var(--text-secondary); padding:6px 14px;
+      border:1px solid var(--border); border-radius:99px;
+      background:none; cursor:pointer; transition:all .2s;
+      text-decoration:none;
+    }
+    .logout-btn:hover { color:var(--rose); border-color:var(--rose); }
+  </style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7C71F0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EasyToLearn">
+  <link rel="apple-touch-icon" href="assets/icon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="inner">
+    <a href="index.html" class="brand">
+      <div class="brand-badge">
+        <img data-icon="etl" alt="EasyToLearn" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+      EasyToLearn
+    </a>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <a href="dashboard.html" class="back-pill" style="color:var(--indigo);border-color:rgba(124,113,240,.4);">📊 Dashboard</a>
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="dash-page">
+  <div class="container">
+
+    <!-- Will be populated by JS -->
+    <div id="dash-root">
+      <div class="empty-state">
+        <div class="empty-icon">⏳</div>
+        <strong>Loading your dashboard...</strong>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="brand-badge" style="width:26px;height:26px;border-radius:7px;">
+          <img data-icon="etl" alt="EasyToLearn" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+        EasyToLearn
+      </div>
+      <div class="footer-copy">Free forever · Progress saved locally</div>
+      <div class="footer-links">
+        <a href="foundation.html">Foundation</a>
+        <a href="networking.html">Networking</a>
+        <a href="linux.html">Linux</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/icon.js"></script>
+<script src="js/topics-data.js"></script>
+<script src="js/linux-topics-data.js"></script>
+<script src="js/foundation-topics-data.js"></script>
+<script>
+(async function () {
+
+// ── Auth guard ─────────────────────────────────────────────
+const authUser = await ETLAuth.getUser();
+if (!authUser) {
+  window.location.href = 'login.html?redirect=dashboard.html';
+  return;
+}
+await ETLAuth.pullAndMergeProgress();
+const user = {
+  name: (authUser.user_metadata && authUser.user_metadata.full_name) || authUser.email.split('@')[0],
+  email: authUser.email,
+  joinedAt: authUser.created_at
+};
+
+// ── Completion helpers ─────────────────────────────────────
+function getCompleted(key) {
+  try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return []; }
+}
+
+const tracks = [
+  {
+    key:   'networking',
+    label: 'Networking',
+    emoji: '🌐',
+    page:  'networking.html',
+    color: 'var(--track-n)',
+    colorHex: '#7C71F0',
+    storageKey: 'etl_completed_networking',
+    topics: TOPICS
+  },
+  {
+    key:   'linux',
+    label: 'Linux Mastery',
+    emoji: '🐧',
+    page:  'linux.html',
+    color: 'var(--track-l)',
+    colorHex: '#3FB950',
+    storageKey: 'etl_completed_linux',
+    topics: LINUX_TOPICS
+  },
+  {
+    key:   'foundation',
+    label: 'Foundation',
+    emoji: '🧱',
+    page:  'foundation.html',
+    color: 'var(--track-f)',
+    colorHex: '#F0A030',
+    storageKey: 'etl_completed_foundation',
+    topics: FOUNDATION_TOPICS
+  }
+];
+
+// Compute stats for each track
+tracks.forEach(t => {
+  t.completed = getCompleted(t.storageKey);
+  t.done      = t.completed.length;
+  t.total     = t.topics.length;
+  t.pct       = t.total > 0 ? Math.round((t.done / t.total) * 100) : 0;
+});
+
+const totalDone  = tracks.reduce((s, t) => s + t.done, 0);
+const totalAll   = tracks.reduce((s, t) => s + t.total, 0);
+const totalPct   = Math.round((totalDone / totalAll) * 100);
+const joinDate   = user.joinedAt
+  ? new Date(user.joinedAt).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})
+  : 'Today';
+
+// Build recent completions list (last 10 across all tracks, most recent first)
+function getRecentCompletions() {
+  const items = [];
+  tracks.forEach(t => {
+    t.completed.forEach(id => {
+      const topic = t.topics.find(tp => tp.id === id);
+      if (topic) items.push({ topic, track: t });
+    });
+  });
+  // We don't have timestamps per-topic, so just show them grouped by track
+  return items.slice(-10).reverse();
+}
+const recentItems = getRecentCompletions();
+
+// Compute badges
+function getBadges() {
+  const badges = [];
+  if (totalDone >= 1)   badges.push({ icon:'🎯', label:'First Topic Done', color:'rgba(124,113,240,.15)', border:'rgba(124,113,240,.3)', text:'var(--indigo)' });
+  if (totalDone >= 5)   badges.push({ icon:'🔥', label:'On a Roll (5+)',     color:'rgba(240,160,48,.15)',  border:'rgba(240,160,48,.3)',  text:'var(--amber)' });
+  if (totalDone >= 10)  badges.push({ icon:'⚡', label:'Fast Learner (10+)', color:'rgba(63,185,80,.12)',   border:'rgba(63,185,80,.3)',   text:'var(--mint)' });
+  if (totalDone >= 25)  badges.push({ icon:'🏆', label:'Dedicated (25+)',    color:'rgba(124,113,240,.15)', border:'rgba(124,113,240,.3)', text:'var(--indigo)' });
+  if (totalDone >= 50)  badges.push({ icon:'🚀', label:'Expert (50+)',        color:'rgba(240,160,48,.15)',  border:'rgba(240,160,48,.3)',  text:'var(--amber)' });
+  tracks.forEach(t => {
+    if (t.done === t.total && t.total > 0)
+      badges.push({ icon:'✅', label:`${t.label} Complete!`, color:'rgba(63,185,80,.12)', border:'rgba(63,185,80,.3)', text:'var(--mint)' });
+  });
+  return badges;
+}
+const badges = getBadges();
+
+// Find next topic to study for each track
+function getNextTopic(track) {
+  const done = new Set(track.completed);
+  return track.topics.find(t => !done.has(t.id)) || null;
+}
+
+// ── Build Dashboard HTML ───────────────────────────────────
+const initials = user.name ? user.name.charAt(0).toUpperCase() : '?';
+
+document.getElementById('dash-root').innerHTML = `
+
+  <!-- Welcome card -->
+  <div class="dash-welcome">
+    <div class="dash-welcome-left">
+      <div class="dash-avatar">${initials}</div>
+      <div>
+        <div class="dash-welcome-name">Welcome back, ${user.name}! 👋</div>
+        <div class="dash-welcome-sub">${user.email} · Joined ${joinDate}</div>
+        ${totalDone === 0
+          ? `<div style="font-size:13px;color:var(--mint);margin-top:6px;">🌱 Ready to start your first topic?</div>`
+          : `<div style="font-size:13px;color:var(--mint);margin-top:6px;">🔥 Keep going — you've completed ${totalDone} topics!</div>`
+        }
+      </div>
+    </div>
+    <div class="dash-welcome-stats">
+      <div class="dash-stat">
+        <div class="dash-stat-num" style="color:var(--indigo);">${totalDone}</div>
+        <div class="dash-stat-lbl">Topics Done</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-num" style="color:var(--mint);">${totalPct}%</div>
+        <div class="dash-stat-lbl">Overall</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-num" style="color:var(--amber);">${totalAll - totalDone}</div>
+        <div class="dash-stat-lbl">Remaining</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Track progress -->
+  <div class="dash-section-title">📊 Track Progress</div>
+  <div class="dash-overview" style="margin-bottom:40px;">
+    ${tracks.map(t => {
+      const next = getNextTopic(t);
+      const hrefNext = next
+        ? `topic.html?id=${next.id}${t.key !== 'networking' ? '&track=' + t.key : ''}`
+        : t.page;
+      const btnLabel = t.done === 0
+        ? 'Start Track'
+        : t.done === t.total
+          ? '🏆 Completed!'
+          : `Continue (Topic ${t.done + 1})`;
+
+      return `
+        <div class="track-progress-card" style="--track-color:${t.color};">
+          <div class="track-card-top">
+            <div class="track-card-icon-name">
+              <div class="track-card-emoji">${t.emoji}</div>
+              <div>
+                <div class="track-card-name">${t.label}</div>
+                <div class="track-card-count">${t.done} / ${t.total} topics</div>
+              </div>
+            </div>
+            <div class="track-pct" style="color:${t.color};">${t.pct}%</div>
+          </div>
+          <div class="track-bar-wrap">
+            <div class="track-bar-bg">
+              <div class="track-bar-fill" style="width:${t.pct}%;background:${t.color};"></div>
+            </div>
+            <div class="track-bar-meta">
+              <span>${t.done} done</span>
+              <span>${t.total - t.done} remaining</span>
+            </div>
+          </div>
+          <a href="${hrefNext}" class="track-card-btn"
+            style="color:${t.colorHex};border-color:${t.colorHex};background:rgba(${t.key==='networking'?'124,113,240':t.key==='linux'?'63,185,80':'240,160,48'},.08);">
+            ${btnLabel} →
+          </a>
+        </div>`;
+    }).join('')}
+  </div>
+
+  <!-- Achievements -->
+  ${badges.length > 0 ? `
+    <div class="dash-section-title">🏅 Achievements</div>
+    <div class="badges-grid" style="margin-bottom:40px;">
+      ${badges.map(b => `
+        <div class="badge-item" style="background:${b.color};border-color:${b.border};color:${b.text};">
+          <span class="badge-icon">${b.icon}</span>
+          ${b.label}
+        </div>`).join('')}
+    </div>
+  ` : ''}
+
+  <!-- Recent completions -->
+  <div class="dash-section-title">📋 Recently Completed</div>
+  ${recentItems.length > 0 ? `
+    <div class="recent-list" style="margin-bottom:40px;">
+      ${recentItems.map(({ topic, track }) => {
+        const href = `topic.html?id=${topic.id}${track.key !== 'networking' ? '&track=' + track.key : ''}`;
+        return `
+          <div class="recent-item">
+            <div class="recent-check" style="background:rgba(63,185,80,.15);color:var(--mint);">✓</div>
+            <div class="recent-info">
+              <div class="recent-title">${topic.title}</div>
+              <div class="recent-track">${track.emoji} ${track.label} · Topic ${String(topic.number).padStart(2,'0')}</div>
+            </div>
+            <a href="${href}" class="recent-link">Review →</a>
+          </div>`;
+      }).join('')}
+    </div>
+  ` : `
+    <div class="empty-state" style="margin-bottom:40px;">
+      <div class="empty-icon">📚</div>
+      <strong>No topics completed yet</strong>
+      Complete your first topic's quiz to see your progress here.
+      <br><br>
+      <a href="foundation.html" style="color:var(--indigo);font-weight:700;">Start with Foundation →</a>
+    </div>
+  `}
+
+  <!-- Quick links -->
+  <div class="dash-section-title">🚀 Quick Start</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
+    ${tracks.map(t => {
+      const next = getNextTopic(t);
+      if (!next) return `
+        <div style="padding:18px;background:var(--bg-2);border:1px solid var(--border-soft);border-radius:var(--r);opacity:.5;">
+          <div style="font-size:20px;margin-bottom:8px;">${t.emoji}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--white);">${t.label}</div>
+          <div style="font-size:12px;color:var(--mint);margin-top:4px;">✅ All ${t.total} topics complete!</div>
+        </div>`;
+      const href = `topic.html?id=${next.id}${t.key !== 'networking' ? '&track=' + t.key : ''}`;
+      return `
+        <a href="${href}" style="padding:18px;background:var(--bg-2);border:1px solid var(--border-soft);border-radius:var(--r);text-decoration:none;display:block;transition:border-color .2s,transform .18s;"
+          onmouseover="this.style.borderColor='${t.colorHex}';this.style.transform='translateY(-3px)'"
+          onmouseout="this.style.borderColor='';this.style.transform=''">
+          <div style="font-size:20px;margin-bottom:8px;">${t.emoji}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--white);">${t.label}</div>
+          <div style="font-size:12px;color:${t.colorHex};margin-top:4px;">Next: ${next.title}</div>
+        </a>`;
+    }).join('')}
+  </div>
+`;
+
+})();
+
+async function doLogout() {
+  if (confirm('Sign out? Your progress will remain saved to your account.')) {
+    await ETLAuth.signOut();
+    window.location.href = 'login.html';
+  }
+}
+</script>
+
+<div id="pwa-install-bar" style="display:none;position:fixed;bottom:20px;right:20px;z-index:9999;">
+  <button id="pwa-install-btn" onclick="doPWAInstall()" style="
+    display:flex;align-items:center;gap:10px;
+    font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;
+    padding:12px 20px;border-radius:99px;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#7C71F0,#5a52d5);
+    color:#fff;box-shadow:0 6px 24px rgba(124,113,240,.5);
+    transition:transform .2s,box-shadow .2s;white-space:nowrap;"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 10px 32px rgba(124,113,240,.65)'"
+    onmouseout="this.style.transform='';this.style.boxShadow='0 6px 24px rgba(124,113,240,.5)'">
+    <img id="pwa-btn-icon" data-icon="etl" alt="" style="width:24px;height:24px;border-radius:6px;object-fit:cover;display:block;">
+    ⬇ Install App
+  </button>
+</div>
+<script>
+// Service Worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+// PWA Install prompt
+let _pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  const bar = document.getElementById('pwa-install-bar');
+  if(bar) bar.style.display = 'block';
+});
+function doPWAInstall() {
+  if(!_pwaPrompt) return;
+  _pwaPrompt.prompt();
+  _pwaPrompt.userChoice.then(() => {
+    _pwaPrompt = null;
+    const bar = document.getElementById('pwa-install-bar');
+    if(bar) bar.style.display = 'none';
+  });
+}
+// Hide after installed
+window.addEventListener('appinstalled', () => {
+  const bar = document.getElementById('pwa-install-bar');
+  if(bar) bar.style.display = 'none';
+  _pwaPrompt = null;
+});
+</script>
+</body>
+</html>

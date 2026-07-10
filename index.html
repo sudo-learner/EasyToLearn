@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EasyToLearn — Learn Tech Through Animation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Nunito:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { overflow-x: hidden; background: #0a0a12; font-family: 'Nunito', sans-serif; }
+
+    /* ─── Background orbs ─── */
+    .bg-orbs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg-orb   { position: absolute; border-radius: 50%; filter: blur(80px); animation: orb-drift 12s ease-in-out infinite alternate; }
+    .bg-orb-1 { width:700px; height:700px; top:-200px; left:-150px;  background:radial-gradient(circle,rgba(108,99,255,.22) 0%,transparent 70%); animation-delay:0s; }
+    .bg-orb-2 { width:600px; height:600px; top:100px;  right:-200px; background:radial-gradient(circle,rgba(255,107,107,.16) 0%,transparent 70%); animation-delay:-4s; }
+    .bg-orb-3 { width:500px; height:500px; bottom:-100px; left:30%;  background:radial-gradient(circle,rgba(255,217,61,.10) 0%,transparent 70%); animation-delay:-8s; }
+    @keyframes orb-drift { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(40px,30px) scale(1.08)} }
+
+    /* ─── Particle canvas ─── */
+    #particle-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+    /* ─── Nav ─── */
+    .home-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      padding: 14px 36px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .home-nav-blur {
+      position: absolute; inset: 0;
+      background: rgba(10,10,18,.5);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      z-index: -1;
+    }
+    .home-brand {
+      font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800;
+      color: #fff; display: flex; align-items: center; gap: 10px; text-decoration: none;
+    }
+    .brand-img {
+      width: 36px; height: 36px; border-radius: 10px; overflow: hidden;
+      box-shadow: 0 0 18px rgba(108,99,255,.55), 0 0 36px rgba(108,99,255,.25);
+      animation: badge-pulse 3s ease-in-out infinite; flex-shrink: 0;
+    }
+    .brand-img img { width:100%; height:100%; object-fit:cover; display:block; }
+    @keyframes badge-pulse {
+      0%,100% { box-shadow:0 0 18px rgba(108,99,255,.55),0 0 36px rgba(108,99,255,.2); }
+      50%      { box-shadow:0 0 28px rgba(108,99,255,.8),0 0 56px rgba(255,107,107,.35); }
+    }
+    .nav-pill {
+      font-family: 'Fira Code', monospace; font-size: 12px;
+      color: rgba(168,178,216,.75); border: 1px solid rgba(255,255,255,.1);
+      padding: 7px 14px; border-radius: 99px; text-decoration: none; transition: all .2s;
+    }
+    .nav-pill:hover { color:#fff; border-color:rgba(108,99,255,.5); background:rgba(108,99,255,.1); }
+
+    /* ─── Hero ─── */
+    .home-hero {
+      position: relative; z-index: 1;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 110px 24px 80px;
+    }
+
+    /* Icon display in hero */
+    .hero-icon-wrap {
+      margin-bottom: 28px;
+      animation: fade-up .7s ease both;
+    }
+    .hero-icon-img {
+      width: 90px; height: 90px; border-radius: 22px; overflow: hidden;
+      margin: 0 auto;
+      box-shadow: 0 0 40px rgba(108,99,255,.5), 0 0 80px rgba(108,99,255,.2);
+      animation: icon-float 4s ease-in-out infinite;
+    }
+    .hero-icon-img img { width:100%; height:100%; object-fit:cover; display:block; }
+    @keyframes icon-float {
+      0%,100% { transform:translateY(0) scale(1); box-shadow:0 0 40px rgba(108,99,255,.5),0 0 80px rgba(108,99,255,.2); }
+      50%      { transform:translateY(-8px) scale(1.02); box-shadow:0 0 60px rgba(108,99,255,.7),0 0 100px rgba(255,107,107,.25); }
+    }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'Fira Code', monospace; font-size: 11px;
+      color: #6C63FF; letter-spacing: .1em; text-transform: uppercase;
+      padding: 6px 16px; border: 1px solid rgba(108,99,255,.4);
+      border-radius: 99px; background: rgba(108,99,255,.08);
+      margin-bottom: 24px; animation: fade-up .8s .05s ease both;
+    }
+    .eyebrow-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #6C63FF; box-shadow: 0 0 8px #6C63FF;
+      animation: blink 1.4s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+    .hero-headline {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(30px, 5vw, 58px);
+      font-weight: 800; color: #fff;
+      line-height: 1.08; letter-spacing: -.025em;
+      margin-bottom: 20px;
+      animation: fade-up .9s .1s ease both;
+    }
+    .hero-headline .grad-text {
+      display: block;
+      background: linear-gradient(90deg, #6C63FF 0%, #FF6B6B 50%, #FFD93D 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      animation: grad-move 4s linear infinite;
+    }
+    @keyframes grad-move { 0%{background-position:0%} 100%{background-position:200%} }
+    .tw-cursor {
+      display: inline-block; width: 3px; height: .82em;
+      background: #6C63FF; margin-left: 3px; vertical-align: middle;
+      animation: cur-blink .8s step-end infinite;
+    }
+    @keyframes cur-blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .hero-sub {
+      font-size: clamp(14px, 1.6vw, 17px);
+      color: rgba(168,178,216,.85); max-width: 560px; line-height: 1.7;
+      margin: 0 auto 36px; animation: fade-up .9s .15s ease both;
+    }
+
+    .hero-btns {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 56px; animation: fade-up .9s .2s ease both;
+    }
+    .btn-primary {
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700;
+      padding: 12px 26px; border-radius: 99px;
+      background: linear-gradient(135deg, #6C63FF, #9D55FF);
+      color: #fff; border: none; text-decoration: none;
+      box-shadow: 0 5px 24px rgba(108,99,255,.5);
+      transition: transform .2s, box-shadow .2s;
+      display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(108,99,255,.65); }
+    .btn-ghost {
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700;
+      padding: 12px 26px; border-radius: 99px;
+      background: rgba(255,255,255,.05); color: rgba(232,234,246,.9);
+      border: 1px solid rgba(255,255,255,.12); text-decoration: none;
+      transition: all .2s; display: inline-flex; align-items: center; gap: 7px;
+      backdrop-filter: blur(8px);
+    }
+    .btn-ghost:hover { background:rgba(108,99,255,.1); border-color:rgba(108,99,255,.5); color:#fff; }
+
+    /* ─── Stats ─── */
+    .stats-row {
+      display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+      padding: 28px 0; max-width: 640px; margin: 0 auto;
+      border-top: 1px solid rgba(255,255,255,.06);
+      animation: fade-up .9s .25s ease both;
+    }
+    .stat-box { text-align: center; }
+    .stat-num {
+      font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800;
+      color: #fff; line-height: 1;
+    }
+    .stat-num .acc { color: #6C63FF; }
+    .stat-lbl {
+      font-family: 'Fira Code', monospace; font-size: 10px;
+      color: rgba(168,178,216,.65); text-transform: uppercase;
+      letter-spacing: .1em; margin-top: 5px;
+    }
+
+    /* ─── Scroll hint ─── */
+    .scroll-hint {
+      position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 7px;
+      font-family: 'Fira Code', monospace; font-size: 10px;
+      color: rgba(168,178,216,.35); letter-spacing: .12em; text-transform: uppercase;
+      animation: fadein 2s 1.2s ease both;
+    }
+    .scroll-chevron {
+      width: 16px; height: 16px;
+      border-right: 2px solid rgba(108,99,255,.45);
+      border-bottom: 2px solid rgba(108,99,255,.45);
+      transform: rotate(45deg);
+      animation: chevron-bounce 1.4s ease-in-out infinite;
+    }
+    @keyframes chevron-bounce { 0%,100%{transform:rotate(45deg) translate(0,0)} 50%{transform:rotate(45deg) translate(4px,4px)} }
+    @keyframes fadein { from{opacity:0} to{opacity:1} }
+    @keyframes fade-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ─── Section labels ─── */
+    .sec-tag {
+      font-family: 'Fira Code', monospace; font-size: 11px;
+      color: #6C63FF; letter-spacing: .1em; text-transform: uppercase;
+      text-align: center; margin-bottom: 12px;
+    }
+    .sec-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(22px, 3.5vw, 38px); font-weight: 800;
+      color: #fff; text-align: center; margin-bottom: 60px;
+    }
+
+    /* ─── Track cards ─── */
+    .tracks-section { position:relative; z-index:1; padding:90px 24px 70px; }
+    .tracks-flex {
+      display: flex; gap: 24px;
+      max-width: 1120px; margin: 0 auto;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .tcard {
+      flex: 1; min-width: 268px; max-width: 350px;
+      background: rgba(22,22,40,.75);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 22px; padding: 34px 28px;
+      display: flex; flex-direction: column; gap: 18px;
+      cursor: pointer; text-decoration: none;
+      position: relative; overflow: hidden;
+      transition: transform .28s cubic-bezier(.34,1.56,.64,1), border-color .28s, box-shadow .28s;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      transform-style: preserve-3d; will-change: transform;
+    }
+    .tcard::before {
+      content:""; position:absolute; inset:0; border-radius:inherit;
+      opacity:0; transition:opacity .3s; pointer-events:none;
+    }
+    .tcard:hover { transform: translateY(-8px) rotateX(2deg); }
+    .tcard:hover::before { opacity:1; }
+    .tcard:hover .tc-arrow { transform: translateX(5px); }
+
+    .tcard.f::before { background:radial-gradient(ellipse at top,rgba(255,217,61,.12),transparent 70%); }
+    .tcard.f:hover   { border-color:rgba(255,217,61,.4); box-shadow:0 18px 50px rgba(255,217,61,.18),0 0 0 1px rgba(255,217,61,.08); }
+    .tcard.n::before { background:radial-gradient(ellipse at top,rgba(108,99,255,.14),transparent 70%); }
+    .tcard.n:hover   { border-color:rgba(108,99,255,.4); box-shadow:0 18px 50px rgba(108,99,255,.2),0 0 0 1px rgba(108,99,255,.08); }
+    .tcard.l::before { background:radial-gradient(ellipse at top,rgba(255,107,107,.12),transparent 70%); }
+    .tcard.l:hover   { border-color:rgba(255,107,107,.4); box-shadow:0 18px 50px rgba(255,107,107,.18),0 0 0 1px rgba(255,107,107,.08); }
+
+    .tc-glow {
+      position:absolute; top:-50px; right:-50px;
+      width:160px; height:160px; border-radius:50%;
+      filter:blur(40px); pointer-events:none; opacity:.22; transition:opacity .3s;
+    }
+    .tcard:hover .tc-glow { opacity:.42; }
+    .f .tc-glow { background:#FFD93D; } .n .tc-glow { background:#6C63FF; } .l .tc-glow { background:#FF6B6B; }
+
+    .tc-icon {
+      width: 54px; height: 54px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.05); flex-shrink:0; position:relative; z-index:1;
+    }
+    .tc-meta {
+      font-family: 'Fira Code', monospace; font-size: 10px;
+      letter-spacing: .08em; text-transform: uppercase; position: relative; z-index:1;
+    }
+    .f .tc-meta{color:#FFD93D} .n .tc-meta{color:#6C63FF} .l .tc-meta{color:#FF6B6B}
+
+    .tc-title {
+      font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800;
+      color: #fff; margin-bottom: 7px; position: relative; z-index:1;
+    }
+    .tc-desc {
+      font-size: 13px; color: rgba(168,178,216,.85); line-height: 1.65;
+      flex: 1; position: relative; z-index:1;
+    }
+    .tc-tags { display:flex; gap:5px; flex-wrap:wrap; position:relative; z-index:1; }
+    .tc-tag {
+      font-family: 'Fira Code', monospace; font-size: 10px;
+      padding: 3px 9px; border-radius: 99px;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+      color: rgba(168,178,216,.7);
+    }
+    .tc-cta {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 13px; font-weight: 700; position: relative; z-index:1; margin-top:2px;
+    }
+    .f .tc-cta{color:#FFD93D} .n .tc-cta{color:#6C63FF} .l .tc-cta{color:#FF6B6B}
+    .tc-arrow { font-size: 16px; transition: transform .2s; }
+
+    /* ─── How it works ─── */
+    .how-section { position:relative; z-index:1; padding:70px 24px 90px; }
+    .how-steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr));
+      gap: 20px; max-width: 860px; margin: 0 auto;
+    }
+    .how-card {
+      background: rgba(22,22,40,.65); border: 1px solid rgba(255,255,255,.06);
+      border-radius: 16px; padding: 28px 22px;
+      backdrop-filter: blur(10px); transition: border-color .3s, transform .25s;
+    }
+    .how-card:hover { border-color:rgba(108,99,255,.35); transform:translateY(-4px); }
+    .how-icon-em { font-size: 24px; margin-bottom: 14px; display: block; }
+    .how-num {
+      font-family: 'Syne', sans-serif; font-size: 40px; font-weight: 800;
+      color: rgba(42,45,74,1); line-height: 1; margin-bottom: 14px;
+    }
+    .how-title { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; color:#fff; margin-bottom:9px; }
+    .how-desc { font-size:13px; color:rgba(168,178,216,.8); line-height:1.6; }
+
+    /* ─── Footer ─── */
+    .home-footer {
+      position: relative; z-index:1;
+      border-top: 1px solid rgba(255,255,255,.06);
+      padding: 28px 36px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+    }
+    .footer-brand {
+      font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: #fff;
+      display: flex; align-items: center; gap: 9px;
+    }
+    .footer-brand-img {
+      width: 26px; height: 26px; border-radius: 7px; overflow:hidden; flex-shrink:0;
+    }
+    .footer-brand-img img { width:100%; height:100%; object-fit:cover; display:block; }
+    .footer-copy { font-family:'Fira Code',monospace; font-size:11px; color:rgba(168,178,216,.45); }
+    .footer-links { display:flex; gap:20px; }
+    .footer-links a {
+      font-family:'Fira Code',monospace; font-size:11px;
+      color:rgba(168,178,216,.55); text-decoration:none; transition:color .2s;
+    }
+    .footer-links a:hover { color:#6C63FF; }
+
+    /* ─── Scroll reveal ─── */
+    .reveal { opacity:0; transform:translateY(32px); transition:opacity .7s ease,transform .7s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+    .rd1{transition-delay:.08s} .rd2{transition-delay:.18s} .rd3{transition-delay:.28s}
+
+    @media(max-width:640px){
+      .home-nav{padding:12px 20px}
+      .hero-icon-img{width:72px;height:72px;border-radius:18px}
+      .stats-row{gap:28px}
+      .home-footer{flex-direction:column;align-items:flex-start;padding:24px 20px}
+    }
+  </style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7C71F0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EasyToLearn">
+  <link rel="apple-touch-icon" href="assets/icon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+</head>
+<body>
+
+<!-- Backgrounds -->
+<canvas id="particle-canvas"></canvas>
+<div class="bg-orbs">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+</div>
+
+<!-- ── Nav: logo + back pill only ── -->
+<nav class="home-nav">
+  <div class="home-nav-blur"></div>
+  <a href="index.html" class="home-brand">
+    <div class="brand-img">
+      <img data-icon="etl" alt="EasyToLearn" style="width:100%;height:100%;object-fit:cover;display:block;">
+    </div>
+    EasyToLearn
+  </a>
+  <a href="foundation.html" class="nav-pill">Start Learning →</a>
+  <div id="home-nav-right" style="display:flex;align-items:center;gap:8px;"></div>
+</nav>
+
+<script>
+// Inject Dashboard or Sign In into homepage nav
+(async function(){
+  var el = document.getElementById('home-nav-right');
+  if(!el) return;
+  var user = (window.ETLAuth) ? await ETLAuth.getUser() : null;
+  if(user){
+    var name = (user.user_metadata && user.user_metadata.full_name) || user.email || 'You';
+    el.innerHTML =
+      '<a href="dashboard.html" style="font-family:\'Fira Code\',monospace;font-size:12px;color:#7C71F0;padding:7px 14px;border:1px solid rgba(124,113,240,.4);border-radius:99px;text-decoration:none;display:flex;align-items:center;gap:5px;transition:all .2s;" onmouseover="this.style.background=\'rgba(124,113,240,.12)\'" onmouseout="this.style.background=\'\'">📊 Dashboard</a>' +
+      '<div style="font-family:\'Fira Code\',monospace;font-size:11px;color:rgba(168,178,216,.7);padding:6px 12px;border:1px solid rgba(255,255,255,.1);border-radius:99px;">👤 ' + name + '</div>';
+  } else {
+    el.innerHTML =
+      '<a href="login.html" style="font-family:\'Fira Code\',monospace;font-size:12px;color:rgba(168,178,216,.75);padding:7px 14px;border:1px solid rgba(255,255,255,.1);border-radius:99px;text-decoration:none;transition:all .2s;" onmouseover="this.style.color=\'#fff\';this.style.borderColor=\'rgba(124,113,240,.5)\'" onmouseout="this.style.color=\'\';this.style.borderColor=\'\'">Sign In</a>';
+  }
+})();
+</script>
+
+<!-- ── Hero ── -->
+<section class="home-hero">
+
+  <!-- Floating app icon -->
+  <div class="hero-icon-wrap">
+    <div class="hero-icon-img">
+      <img data-icon="etl" alt="EasyToLearn" style="width:100%;height:100%;object-fit:cover;display:block;">
+    </div>
+  </div>
+
+  <div class="hero-eyebrow">
+    <span class="eyebrow-dot"></span>
+    Free · No Sign-up · Beginner Friendly · 107 Topics
+  </div>
+
+  <h1 class="hero-headline">
+    Learn tech the<br>
+    <span class="grad-text" id="tw-line"></span><span class="tw-cursor" id="tw-cursor"></span>
+  </h1>
+
+  <p class="hero-sub">
+    Interactive animations you control. Plain-English explanations at three depths.
+    Instant quizzes with progress tracking. Three full learning tracks — zero to advanced.
+  </p>
+
+  <div class="hero-btns">
+    <a href="foundation.html" class="btn-primary">🧱 Start from Zero</a>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-num"><span class="count" data-target="3">0</span><span class="acc">+</span></div>
+      <div class="stat-lbl">Tracks</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num"><span class="count" data-target="107">0</span><span class="acc">+</span></div>
+      <div class="stat-lbl">Topics</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num"><span class="count" data-target="321">0</span><span class="acc">+</span></div>
+      <div class="stat-lbl">Quiz Questions</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num"><span class="count" data-target="100">0</span><span class="acc">%</span></div>
+      <div class="stat-lbl">Free Forever</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Explore tracks</span>
+    <div class="scroll-chevron"></div>
+  </div>
+</section>
+
+<!-- ── Track cards ── -->
+<section class="tracks-section">
+  <div class="sec-tag">Choose Your Track</div>
+  <h2 class="sec-heading reveal">Where do you want to start?</h2>
+
+  <div class="tracks-flex">
+
+    <a href="foundation.html" class="tcard f reveal rd1">
+      <div class="tc-glow"></div>
+      <div class="tc-icon">🧱</div>
+      <div>
+        <div class="tc-meta">36 Topics · Start Here</div>
+        <div class="tc-title">Foundation</div>
+        <div class="tc-desc">Brand new to tech? Start here. How computers work, the internet, binary, encryption, AI basics — every core idea the other tracks build on.</div>
+      </div>
+      <div class="tc-tags">
+        <span class="tc-tag">How Computers Work</span>
+        <span class="tc-tag">The Internet</span>
+        <span class="tc-tag">Security Basics</span>
+        <span class="tc-tag">Cloud & AI</span>
+      </div>
+      <div class="tc-cta"><span>Begin your journey</span><span class="tc-arrow">→</span></div>
+    </a>
+
+    <a href="networking.html" class="tcard n reveal rd2">
+      <div class="tc-glow"></div>
+      <div class="tc-icon">🌐</div>
+      <div>
+        <div class="tc-meta">35 Topics · Basic → Advanced</div>
+        <div class="tc-title">Networking</div>
+        <div class="tc-desc">How data actually travels. TCP/IP, DNS, routing, wireless security, firewalls, VPNs — all explained visually with click-through animations.</div>
+      </div>
+      <div class="tc-tags">
+        <span class="tc-tag">OSI Model</span>
+        <span class="tc-tag">TCP/IP</span>
+        <span class="tc-tag">DNS & DHCP</span>
+        <span class="tc-tag">Firewalls</span>
+      </div>
+      <div class="tc-cta"><span>Explore Networking</span><span class="tc-arrow">→</span></div>
+    </a>
+
+    <a href="linux.html" class="tcard l reveal rd3">
+      <div class="tc-glow"></div>
+      <div class="tc-icon">🐧</div>
+      <div>
+        <div class="tc-meta">36 Topics · Basic → Advanced</div>
+        <div class="tc-title">Linux Mastery</div>
+        <div class="tc-desc">From your first terminal command through permissions, scripting, package management, SSH, and system hardening — in plain English.</div>
+      </div>
+      <div class="tc-tags">
+        <span class="tc-tag">Terminal Basics</span>
+        <span class="tc-tag">Permissions</span>
+        <span class="tc-tag">Bash Scripting</span>
+        <span class="tc-tag">Hardening</span>
+      </div>
+      <div class="tc-cta"><span>Master Linux</span><span class="tc-arrow">→</span></div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ── How it works ── -->
+<section class="how-section">
+  <div class="sec-tag">How It Works</div>
+  <h2 class="sec-heading reveal" style="margin-bottom:48px;">Every topic — same 3-step format</h2>
+  <div class="how-steps">
+    <div class="how-card reveal rd1">
+      <span class="how-icon-em">🎬</span>
+      <div class="how-num">01</div>
+      <div class="how-title">Watch the Animation</div>
+      <div class="how-desc">An interactive diagram you step through at your own pace — not a passive video. Click to see each stage unfold clearly.</div>
+    </div>
+    <div class="how-card reveal rd2">
+      <span class="how-icon-em">📖</span>
+      <div class="how-num">02</div>
+      <div class="how-title">Read Your Depth</div>
+      <div class="how-desc">Switch between Basic, Intermediate, and Advanced explanations of the same concept. Start simple, go deeper when ready.</div>
+    </div>
+    <div class="how-card reveal rd3">
+      <span class="how-icon-em">🎯</span>
+      <div class="how-num">03</div>
+      <div class="how-title">Test & Track</div>
+      <div class="how-desc">Answer the quiz to earn a ✓ completion badge. Your progress saves automatically in your browser across every session.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="home-footer">
+  <div class="footer-brand">
+    <div class="footer-brand-img"><img data-icon="etl" alt="EasyToLearn" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+    EasyToLearn
+  </div>
+  <div class="footer-copy">Free forever · GitHub Pages · No sign-up required</div>
+  <div class="footer-links">
+    <a href="foundation.html">Foundation</a>
+    <a href="networking.html">Networking</a>
+    <a href="linux.html">Linux</a>
+  </div>
+</footer>
+
+<script>
+// ── Particle canvas ─────────────────────────────────────
+(function(){
+  const cv = document.getElementById('particle-canvas');
+  const cx = cv.getContext('2d');
+  let W, H, pts = [];
+  function resize(){ W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  for(let i=0; i<70; i++) pts.push({
+    x: Math.random()*1920, y: Math.random()*1080,
+    r: Math.random()*1.4+.3, s: Math.random()*.38+.08,
+    d: (Math.random()-.5)*.25, o: Math.random()*.38+.08,
+    c: Math.random()<.55 ? '108,99,255' : '255,107,107'
+  });
+  function draw(){
+    cx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      cx.beginPath(); cx.arc(p.x%W, p.y%H, p.r, 0, Math.PI*2);
+      cx.fillStyle = `rgba(${p.c},${p.o})`; cx.fill();
+      p.y -= p.s; p.x += p.d;
+      if(p.y < -10){ p.y = H+10; p.x = Math.random()*W; }
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── Typewriter ─────────────────────────────────────────
+(function(){
+  const words = ['easy way','right way','fun way','your way'];
+  const el = document.getElementById('tw-line');
+  let wi=0, ci=0, del=false;
+  function type(){
+    const w = words[wi];
+    if(!del){ el.textContent = w.slice(0,++ci); if(ci===w.length){ del=true; setTimeout(type,1800); return; } }
+    else    { el.textContent = w.slice(0,--ci); if(ci===0){ del=false; wi=(wi+1)%words.length; setTimeout(type,300); return; } }
+    setTimeout(type, del?55:95);
+  }
+  setTimeout(type, 700);
+})();
+
+// ── Counter animation ──────────────────────────────────
+(function(){
+  function run(el, target, dur){
+    let v=0, step=target/(dur/16);
+    const t = setInterval(()=>{ v=Math.min(v+step,target); el.textContent=Math.floor(v); if(v>=target)clearInterval(t); },16);
+  }
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ document.querySelectorAll('.count').forEach(el=>run(el,+el.dataset.target,1200)); obs.disconnect(); } });
+  },{threshold:.3});
+  const sr = document.querySelector('.stats-row');
+  if(sr) obs.observe(sr);
+})();
+
+// ── Scroll reveal ──────────────────────────────────────
+(function(){
+  const obs = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); }),{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+})();
+
+// ── 3D card tilt ───────────────────────────────────────
+document.querySelectorAll('.tcard').forEach(card=>{
+  card.addEventListener('mousemove', e=>{
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX-r.left-r.width/2)  / r.width;
+    const y = (e.clientY-r.top -r.height/2) / r.height;
+    card.style.transform = `translateY(-8px) rotateX(${-y*9}deg) rotateY(${x*9}deg)`;
+  });
+  card.addEventListener('mouseleave',()=>{ card.style.transform=''; });
+});
+</script>
+<script src="js/icon.js"></script>
+
+<div id="pwa-install-bar" style="display:none;position:fixed;bottom:20px;right:20px;z-index:9999;">
+  <button id="pwa-install-btn" onclick="doPWAInstall()" style="
+    display:flex;align-items:center;gap:10px;
+    font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;
+    padding:12px 20px;border-radius:99px;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#7C71F0,#5a52d5);
+    color:#fff;box-shadow:0 6px 24px rgba(124,113,240,.5);
+    transition:transform .2s,box-shadow .2s;white-space:nowrap;"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 10px 32px rgba(124,113,240,.65)'"
+    onmouseout="this.style.transform='';this.style.boxShadow='0 6px 24px rgba(124,113,240,.5)'">
+    <img id="pwa-btn-icon" data-icon="etl" alt="" style="width:24px;height:24px;border-radius:6px;object-fit:cover;display:block;">
+    ⬇ Install App
+  </button>
+</div>
+<script>
+// Service Worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+// PWA Install prompt
+let _pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  const bar = document.getElementById('pwa-install-bar');
+  if(bar) bar.style.display = 'block';
+});
+function doPWAInstall() {
+  if(!_pwaPrompt) return;
+  _pwaPrompt.prompt();
+  _pwaPrompt.userChoice.then(() => {
+    _pwaPrompt = null;
+    const bar = document.getElementById('pwa-install-bar');
+    if(bar) bar.style.display = 'none';
+  });
+}
+// Hide after installed
+window.addEventListener('appinstalled', () => {
+  const bar = document.getElementById('pwa-install-bar');
+  if(bar) bar.style.display = 'none';
+  _pwaPrompt = null;
+});
+</script>
+</body>
+</html>

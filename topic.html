@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Topic — EasyToLearn</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7C71F0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EasyToLearn">
+  <link rel="apple-touch-icon" href="assets/icon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="inner">
+    <a href="index.html" class="brand">
+      <div class="brand-badge">
+        <img data-icon="etl" alt="EasyToLearn" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+      EasyToLearn
+    </a>
+    <a id="back-link" href="index.html" class="back-pill">← Back</a>
+  </div>
+</nav>
+
+<div id="topic-root"></div>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="brand-badge" style="width:26px;height:26px;border-radius:7px;">
+          <img data-icon="etl" alt="EasyToLearn" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+        EasyToLearn
+      </div>
+      <div class="footer-copy">Free forever · Hosted on GitHub Pages</div>
+      <div class="footer-links">
+        <a href="foundation.html">Foundation</a>
+        <a href="networking.html">Networking</a>
+        <a href="linux.html">Linux</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Load icon first so brand images resolve immediately -->
+<script src="js/icon.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/topics-data.js"></script>
+<script src="js/linux-topics-data.js"></script>
+<script src="js/foundation-topics-data.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/quiz.js"></script>
+
+<script>
+// ── Track config ───────────────────────────────────────────
+const params   = new URLSearchParams(window.location.search);
+const topicId  = params.get('id');
+const trackKey = params.get('track') || 'networking';
+
+const TRACK = {
+  networking: {
+    getById:    getTopicById,
+    getAdjacent:getAdjacentTopics,
+    listPage:   'networking.html',
+    listLabel:  'Networking',
+    total:      TOPICS.length,
+    accentVar:  'var(--track-n)',
+    storageKey: 'etl_completed_networking'
+  },
+  linux: {
+    getById:    getLinuxTopicById,
+    getAdjacent:getAdjacentLinuxTopics,
+    listPage:   'linux.html',
+    listLabel:  'Linux Mastery',
+    total:      LINUX_TOPICS.length,
+    accentVar:  'var(--track-l)',
+    storageKey: 'etl_completed_linux'
+  },
+  foundation: {
+    getById:    getFoundationTopicById,
+    getAdjacent:getAdjacentFoundationTopics,
+    listPage:   'foundation.html',
+    listLabel:  'Foundation',
+    total:      FOUNDATION_TOPICS.length,
+    accentVar:  'var(--track-f)',
+    storageKey: 'etl_completed_foundation'
+  }
+};
+
+const cfg   = TRACK[trackKey] || TRACK.networking;
+const topic = cfg.getById(topicId);
+const root  = document.getElementById('topic-root');
+
+// Update back link
+document.getElementById('back-link').href    = cfg.listPage;
+document.getElementById('back-link').textContent = '← ' + cfg.listLabel;
+
+// ── Completion helpers ─────────────────────────────────────
+function getCompleted() {
+  try { return JSON.parse(localStorage.getItem(cfg.storageKey) || '[]'); } catch(e) { return []; }
+}
+function markComplete(id) {
+  const done = getCompleted();
+  if (!done.includes(id)) {
+    done.push(id);
+    localStorage.setItem(cfg.storageKey, JSON.stringify(done));
+    if (window.ETLAuth) ETLAuth.pushProgress(trackKey, id); // sync to Supabase, no-op if signed out
+  }
+}
+function isCompleted(id) { return getCompleted().includes(id); }
+
+// Pull any progress saved on other devices and merge it in
+if (window.ETLAuth) ETLAuth.pullAndMergeProgress();
+
+// ── Not found ──────────────────────────────────────────────
+if (!topic) {
+  root.innerHTML = `
+    <div class="container" style="padding:80px 0;text-align:center;">
+      <div style="font-size:52px;margin-bottom:20px;">🔍</div>
+      <h1 style="color:var(--white);margin-bottom:14px;">Topic not found</h1>
+      <p style="margin-bottom:28px;">That topic doesn't exist yet.</p>
+      <a href="${cfg.listPage}" style="
+        display:inline-flex;align-items:center;gap:8px;
+        font-family:var(--font-body);font-size:14px;font-weight:700;
+        padding:11px 24px;border-radius:99px;
+        background:var(--indigo);color:#fff;text-decoration:none;">
+        ← Back to ${cfg.listLabel}
+      </a>
+    </div>`;
+} else {
+
+  // ── Build page ─────────────────────────────────────────
+  document.getElementById('page-title').textContent = topic.title + ' — EasyToLearn';
+  const adj  = cfg.getAdjacent(topic.id);
+  const done = isCompleted(topic.id);
+  const href = t => `topic.html?id=${t.id}${trackKey !== 'networking' ? '&track=' + trackKey : ''}`;
+
+  root.innerHTML = `
+
+    <header class="topic-header">
+      <div class="container">
+        <div class="breadcrumb">
+          <a href="${cfg.listPage}">${cfg.listLabel}</a>
+          <span class="sep">›</span>
+          <span>${topic.section}</span>
+          <span class="sep">›</span>
+          <span style="color:var(--text-primary);">${topic.title}</span>
+        </div>
+
+        <h1 style="color:var(--white);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          ${topic.title}
+          <span id="complete-badge" class="complete-badge" style="display:${done ? 'flex' : 'none'};">
+            ✓ Completed
+          </span>
+        </h1>
+
+        <div class="topic-meta" style="margin-top:12px;">
+          <span class="node-diff diff-${topic.difficulty}">${topic.difficulty}</span>
+          <span class="topic-num">Topic ${String(topic.number).padStart(2,'0')} of ${cfg.total}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="container" style="padding-bottom:80px;">
+
+      <!-- Animation stage -->
+      <div class="anim-stage" id="anim-stage"></div>
+
+      <!-- Depth tabs -->
+      <div class="depth-tabs">
+        <div class="depth-tab active" data-level="basic"        onclick="switchDepth(this)">📗 Basic</div>
+        <div class="depth-tab"        data-level="intermediate" onclick="switchDepth(this)">📘 Intermediate</div>
+        <div class="depth-tab"        data-level="advanced"     onclick="switchDepth(this)">📙 Advanced</div>
+      </div>
+      <div class="depth-content" id="depth-content">${topic.content.basic}</div>
+
+      <!-- Quiz -->
+      <div class="quiz-section">
+        <div class="quiz-header">
+          <div class="quiz-header-icon">🎯</div>
+          <div>
+            <div class="quiz-header-text">Test Yourself</div>
+            <div class="quiz-header-sub">Answer all questions — right or wrong — to mark this topic complete</div>
+          </div>
+        </div>
+        <div id="quiz-container" data-total="0" data-score="0" data-answered="0"></div>
+      </div>
+
+      <!-- Completion banner -->
+      <div id="completion-banner" class="completion-banner">
+        <div style="font-size:42px;margin-bottom:14px;">🎉</div>
+        <h3>Topic Complete!</h3>
+        <p>Great work — this topic is now marked ✓ in your progress. Ready for the next one?</p>
+        ${adj.next
+          ? `<a href="${href(adj.next)}" style="
+              display:inline-flex;align-items:center;gap:8px;margin-top:18px;
+              font-family:var(--font-body);font-size:14px;font-weight:700;
+              padding:11px 24px;border-radius:99px;
+              background:var(--mint);color:#fff;text-decoration:none;">
+              Next: ${adj.next.title} →
+            </a>`
+          : `<p style="margin-top:16px;color:var(--mint);font-weight:700;">
+              🏆 You've reached the end of this track!
+            </p>`}
+      </div>
+
+      <!-- Prev / Next pager -->
+      <div class="topic-pager">
+        ${adj.prev
+          ? `<a class="pager-link prev" href="${href(adj.prev)}">
+               <span class="pager-dir">← PREVIOUS</span>
+               <span class="pager-title">${adj.prev.title}</span>
+             </a>`
+          : `<div class="pager-link" style="opacity:.3;">
+               <span class="pager-dir">← PREVIOUS</span>
+               <span class="pager-title">Start of track</span>
+             </div>`}
+        ${adj.next
+          ? `<a class="pager-link next" href="${href(adj.next)}">
+               <span class="pager-dir">NEXT →</span>
+               <span class="pager-title">${adj.next.title}</span>
+             </a>`
+          : `<div class="pager-link next" style="opacity:.3;">
+               <span class="pager-dir">NEXT →</span>
+               <span class="pager-title">End of track</span>
+             </div>`}
+      </div>
+
+    </div>
+  `;
+
+  // ── Render animation ─────────────────────────────────
+  const stage = document.getElementById('anim-stage');
+  window._currentTopicCompareData = topic.compareData || null;
+  if (Animations[topic.animation]) {
+    Animations[topic.animation](stage);
+  } else {
+    stage.innerHTML = `
+      <p style="font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);">
+        Animation coming soon for this topic.
+      </p>`;
+  }
+
+  // ── Render quiz ───────────────────────────────────────
+  renderQuiz(topic.quiz, document.getElementById('quiz-container'), onAllAnswered);
+  window._topicContent = topic.content;
+}
+
+// ── Quiz complete callback ─────────────────────────────────
+function onAllAnswered() {
+  markComplete(topic.id);
+  const badge = document.getElementById('complete-badge');
+  if (badge) badge.style.display = 'flex';
+  const banner = document.getElementById('completion-banner');
+  if (banner) {
+    banner.style.display = 'block';
+    setTimeout(() => banner.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+  }
+}
+
+// ── Depth tab switching ────────────────────────────────────
+function switchDepth(tabEl) {
+  document.querySelectorAll('.depth-tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  document.getElementById('depth-content').innerHTML = window._topicContent[tabEl.dataset.level];
+}
+</script>
+
+
+<div id="pwa-install-bar" style="display:none;position:fixed;bottom:20px;right:20px;z-index:9999;">
+  <button id="pwa-install-btn" onclick="doPWAInstall()" style="
+    display:flex;align-items:center;gap:10px;
+    font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;
+    padding:12px 20px;border-radius:99px;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#7C71F0,#5a52d5);
+    color:#fff;box-shadow:0 6px 24px rgba(124,113,240,.5);
+    transition:transform .2s,box-shadow .2s;white-space:nowrap;"
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 10px 32px rgba(124,113,240,.65)'"
+    onmouseout="this.style.transform='';this.style.boxShadow='0 6px 24px rgba(124,113,240,.5)'">
+    <img id="pwa-btn-icon" data-icon="etl" alt="" style="width:24px;height:24px;border-radius:6px;object-fit:cover;display:block;">
+    ⬇ Install App
+  </button>
+</div>
+<script>
+// Service Worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+// PWA Install prompt
+let _pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  const bar = document.getElementById('pwa-install-bar');
+  if(bar) bar.style.display = 'block';
+});
+function doPWAInstall() {
+  if(!_pwaPrompt) return;
+  _pwaPrompt.prompt();
+  _pwaPrompt.userChoice.then(() => {
+    _pwaPrompt = null;
+    const bar = document.getElementById('pwa-install-bar');
+    if(bar) bar.style.display = 'none';
+  });
+}
+// Hide after installed
+window.addEventListener('appinstalled', () => {
+  const bar = document.getElementById('pwa-install-bar');
+  if(bar) bar.style.display = 'none';
+  _pwaPrompt = null;
+});
+</script>
+</body>
+</html>
