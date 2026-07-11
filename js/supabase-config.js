@@ -7,5 +7,5 @@
 //    GitHub Pages URL (e.g. https://YOUR-USERNAME.github.io/EasyToLearn/)
 //    to both "Site URL" and "Redirect URLs".
 // ─────────────────────────────────────────────────────────
-const SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR-ANON-PUBLIC-KEY';
+const SUPABASE_URL = 'https://yymwruhcmynoymukidjw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5bXdydWhjbXlub3ltdWtpZGp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NTI0MjMsImV4cCI6MjA5OTMyODQyM30.aPgtlsITxfLWalDJyRUnDQPsv9Z9a7KU8jFolZ5Pcfc';
