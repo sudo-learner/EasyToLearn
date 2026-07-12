@@ -1,7 +1,7 @@
 {
   "name": "EasyToLearn",
   "short_name": "EasyToLearn",
-  "description": "Learn Networking, Linux and tech fundamentals through interactive animations and quizzes.",
+  "description": "Learn Networking, Linux, Python for Security, and tech fundamentals through interactive animations and quizzes.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

@@ -171,7 +171,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EasyToLearn">
   <link rel="apple-touch-icon" href="assets/icon.png">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
 </head>
@@ -220,6 +220,7 @@
         <a href="foundation.html">Foundation</a>
         <a href="networking.html">Networking</a>
         <a href="linux.html">Linux</a>
+        <a href="python.html">Python</a>
       </div>
     </div>
   </div>
@@ -229,6 +230,7 @@
 <script src="js/topics-data.js"></script>
 <script src="js/linux-topics-data.js"></script>
 <script src="js/foundation-topics-data.js"></script>
+<script src="js/python-topics-data.js"></script>
 <script>
 (async function () {
 
@@ -257,7 +259,7 @@ const tracks = [
     emoji: '🌐',
     page:  'networking.html',
     color: 'var(--track-n)',
-    colorHex: '#7C71F0',
+    colorHex: '#7C71F0', rgb: '124,113,240',
     storageKey: 'etl_completed_networking',
     topics: TOPICS
   },
@@ -267,7 +269,7 @@ const tracks = [
     emoji: '🐧',
     page:  'linux.html',
     color: 'var(--track-l)',
-    colorHex: '#3FB950',
+    colorHex: '#3FB950', rgb: '63,185,80',
     storageKey: 'etl_completed_linux',
     topics: LINUX_TOPICS
   },
@@ -277,9 +279,19 @@ const tracks = [
     emoji: '🧱',
     page:  'foundation.html',
     color: 'var(--track-f)',
-    colorHex: '#F0A030',
+    colorHex: '#F0A030', rgb: '240,160,48',
     storageKey: 'etl_completed_foundation',
     topics: FOUNDATION_TOPICS
+  },
+  {
+    key:   'python',
+    label: 'Python for Security',
+    emoji: '🐍',
+    page:  'python.html',
+    color: 'var(--track-p)',
+    colorHex: '#58A6FF', rgb: '88,166,255',
+    storageKey: 'etl_completed_python',
+    topics: PYTHON_TOPICS
   }
 ];
 
@@ -404,7 +416,7 @@ document.getElementById('dash-root').innerHTML = `
             </div>
           </div>
           <a href="${hrefNext}" class="track-card-btn"
-            style="color:${t.colorHex};border-color:${t.colorHex};background:rgba(${t.key==='networking'?'124,113,240':t.key==='linux'?'63,185,80':'240,160,48'},.08);">
+            style="color:${t.colorHex};border-color:${t.colorHex};background:rgba(${t.rgb},.08);">
             ${btnLabel} →
           </a>
         </div>`;
@@ -502,7 +514,30 @@ async function doLogout() {
 // Service Worker
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      // If an update is already waiting (common on mobile "Add to Home
+      // Screen" installs that rarely reopen fully), activate it now.
+      if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
+      reg.addEventListener('updatefound', () => {
+        const fresh = reg.installing;
+        if (!fresh) return;
+        fresh.addEventListener('statechange', () => {
+          if (fresh.state === 'installed' && navigator.serviceWorker.controller) {
+            fresh.postMessage('SKIP_WAITING');
+          }
+        });
+      });
+    }).catch(()=>{});
+    // Reload once when the new service worker takes control, so a phone
+    // stuck on an older, buggy worker gets a fully fresh page + fetch
+    // pipeline instead of silently failing (e.g. the login "Failed to
+    // fetch" issue caused by a stale worker intercepting API calls).
+    let _swRefreshed = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (_swRefreshed) return;
+      _swRefreshed = true;
+      window.location.reload();
+    });
   });
 }
 // PWA Install prompt

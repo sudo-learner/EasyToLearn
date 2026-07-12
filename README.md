@@ -6,7 +6,7 @@ to make technical content accessible to absolute beginners.
 
 **Hosted free on GitHub Pages — zero cost, no backend, no domain needed.**
 
-## What's included — 3 complete tracks, 107 topics
+## What's included — 4 complete tracks, 142 topics
 
 ### 🧱 Foundation — 36 topics, 12 sections
 How computers work, hardware vs software, binary, operating systems,
@@ -22,6 +22,11 @@ hardware, routing & switching, wireless, security basics, advanced topics.
 Fundamentals, file management, permissions, processes, shell tools,
 package management, networking on Linux, scripting, system administration.
 
+### 🐍 Python for Security — 35 topics, 6 sections
+Python basics, working with text & data, networking with Python,
+cryptography & secrets, automation & system interaction, and practical
+security tooling (scanners, log monitors, OSINT, password checkers).
+
 Every topic has:
 - An interactive click-to-step animation (topic-specific, zero duplicates)
 - Basic / Intermediate / Advanced explanation tabs
@@ -33,16 +38,18 @@ Every topic has:
 
 ```
 easytolearn/
-├── index.html                 ← Homepage with 3 track cards + stats bar
+├── index.html                 ← Homepage with 4 track cards + stats bar
 ├── foundation.html            ← Foundation topic list with progress bar
 ├── networking.html            ← Networking topic list with progress bar
 ├── linux.html                 ← Linux topic list with progress bar
-├── topic.html                 ← ONE shared template for all 107 topics
+├── python.html                ← Python for Security topic list with progress bar
+├── topic.html                 ← ONE shared template for all 142 topics
 ├── css/style.css              ← Full design system
 ├── js/
 │   ├── topics-data.js         ← 35 Networking topics
 │   ├── linux-topics-data.js   ← 36 Linux topics
 │   ├── foundation-topics-data.js ← 36 Foundation topics
+│   ├── python-topics-data.js  ← 35 Python for Security topics
 │   ├── animations.js          ← 9 parameterized animation engines
 │   └── quiz.js                ← Quiz engine with completion callback
 └── README.md
@@ -58,7 +65,7 @@ this and:
 2. Shows a green "✓ Completed" badge next to the topic title
 3. Reveals a celebration banner with a smooth scroll-into-view
 
-On the track list pages (networking.html, linux.html, foundation.html):
+On the track list pages (networking.html, linux.html, foundation.html, python.html):
 - Each completed topic shows a filled ✓ badge instead of its difficulty label
 - A progress bar at the top shows X / total completed for that track
 
@@ -83,8 +90,8 @@ add a `trackConfig` entry in `topic.html`, and add nav links everywhere.
 
 ## Verified before packaging
 
-All 107 topics across 3 tracks passed:
+All 142 topics across 4 tracks passed:
 1. Data validation (content length, quiz structure, animation key validity)
 2. Real DOM rendering (jsdom): animation renders, controls clicked, quiz answered
 3. Completion callback: confirmed to fire after last question on every topic
-4. Zero duplicate animation output confirmed across all 107 topics
+4. Zero duplicate animation output confirmed across all 142 topics
