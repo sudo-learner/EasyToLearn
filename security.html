@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Networking — EasyToLearn</title>
+  <title>Core Security Concepts — EasyToLearn</title>
   <link rel="stylesheet" href="css/style.css">
-  <style> :root { --accent-color: var(--track-n); } </style>
+  <style> :root { --accent-color: var(--track-s); } </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#7C71F0">
   <meta name="mobile-web-app-capable" content="yes">
@@ -32,19 +32,19 @@
 <header class="track-header">
   <div class="container">
     <div class="track-header-inner">
-      <div class="track-header-icon" style="background:var(--indigo-dim);border:1px solid rgba(124,113,240,.25);">🌐</div>
+      <div class="track-header-icon" style="background:rgba(240,60,99,.12);border:1px solid rgba(240,60,99,.25);">🛡️</div>
       <div>
-        <h1>Networking</h1>
-        <p>How data actually travels — from what a network is, through TCP/IP, routing, wireless, DNS, firewalls and beyond. 35 topics, basic to advanced.</p>
+        <h1>Core Security Concepts</h1>
+        <p>The ideas every cybersecurity job needs — CIA triad, threats vs vulnerabilities, authentication, encryption, malware, social engineering, and defense mindset. All in plain English.</p>
       </div>
     </div>
     <div class="progress-wrap">
       <div class="progress-meta">
         <span>YOUR PROGRESS</span>
-        <span id="progress-text" style="color:var(--track-n)">0 / 35 completed</span>
+        <span id="progress-text" style="color:var(--track-s)">0 / 10 completed</span>
       </div>
       <div class="progress-track">
-        <div id="progress-fill" class="progress-fill" style="background:var(--track-n);"></div>
+        <div id="progress-fill" class="progress-fill" style="background:var(--track-s);"></div>
       </div>
     </div>
   </div>
@@ -64,25 +64,25 @@
       <div class="footer-copy">Free forever · Hosted on GitHub Pages</div>
       <div class="footer-links">
         <a href="index.html">Home</a>
+        <a href="networking.html">Networking</a>
         <a href="linux.html">Linux</a>
         <a href="foundation.html">Foundation</a>
-        <a href="security.html">Security</a>
       </div>
     </div>
   </div>
 </footer>
 
-<script src="js/topics-data.js"></script>
+<script src="js/security-topics-data.js"></script>
 <script src="js/icon.js"></script>
 <script src="js/nav.js"></script>
 <script>
   function getCompleted() {
-    try { return JSON.parse(localStorage.getItem('etl_completed_networking') || '[]'); } catch(e) { return []; }
+    try { return JSON.parse(localStorage.getItem('etl_completed_security') || '[]'); } catch(e) { return []; }
   }
-  const sections  = getTopicsBySection();
+  const sections  = getSecurityTopicsBySection();
   const completed = getCompleted();
-  const total     = TOPICS.length;
-  const done      = TOPICS.filter(t => completed.includes(t.id)).length;
+  const total     = SECURITY_TOPICS.length;
+  const done      = SECURITY_TOPICS.filter(t => completed.includes(t.id)).length;
   document.getElementById('progress-text').textContent = done + ' / ' + total + ' completed';
   document.getElementById('progress-fill').style.width = Math.round((done/total)*100) + '%';
 
@@ -93,7 +93,7 @@
         ${sections[sec].map(t => {
           const isDone = completed.includes(t.id);
           return `<div class="node ${isDone ? 'node-done' : ''}">
-            <a href="topic.html?id=${t.id}">
+            <a href="topic.html?id=${t.id}&track=security">
               <span class="node-num">${String(t.number).padStart(2,'0')}</span>
               <span class="node-title">${t.title}</span>
               <span class="node-summary">${t.summary}</span>

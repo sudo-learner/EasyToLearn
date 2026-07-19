@@ -29,11 +29,11 @@
   --rose-dim:    rgba(244,112,103,0.12);
   --sky:         #58A6FF;   /* links, info */
 
-  /* Per-track accent (Foundation=amber, Networking=indigo, Linux=mint, Python=sky-blue) */
+  /* Per-track accent (Foundation=amber, Networking=indigo, Linux=mint) */
   --track-f: #F0A030;
   --track-n: #7C71F0;
   --track-l: #3FB950;
-  --track-p: #58A6FF;
+  --track-s: #F03C63;
 
   /* Text */
   --text-primary:   #E6EDF3;   /* main text */
@@ -301,15 +301,6 @@ body::before {
   background: var(--bg-3); color: #B0AAFF;
   padding: 2px 7px; border-radius: 5px;
   border: 1px solid var(--border);
-}
-.depth-content pre {
-  background: var(--bg-3); border: 1px solid var(--border);
-  border-radius: var(--r-md, 10px); padding: 16px 18px;
-  overflow-x: auto; margin: 1em 0;
-}
-.depth-content pre code {
-  background: none; border: none; padding: 0;
-  color: var(--text-primary); font-size: .82em; line-height: 1.6;
 }
 
 /* ── Quiz ────────────────────────────────────────────────── */

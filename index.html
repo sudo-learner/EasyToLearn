@@ -233,8 +233,8 @@
     .tcard.n:hover   { border-color:rgba(108,99,255,.4); box-shadow:0 18px 50px rgba(108,99,255,.2),0 0 0 1px rgba(108,99,255,.08); }
     .tcard.l::before { background:radial-gradient(ellipse at top,rgba(255,107,107,.12),transparent 70%); }
     .tcard.l:hover   { border-color:rgba(255,107,107,.4); box-shadow:0 18px 50px rgba(255,107,107,.18),0 0 0 1px rgba(255,107,107,.08); }
-    .tcard.p::before { background:radial-gradient(ellipse at top,rgba(88,166,255,.14),transparent 70%); }
-    .tcard.p:hover   { border-color:rgba(88,166,255,.4); box-shadow:0 18px 50px rgba(88,166,255,.2),0 0 0 1px rgba(88,166,255,.08); }
+    .tcard.s::before { background:radial-gradient(ellipse at top,rgba(240,63,99,.14),transparent 70%); }
+    .tcard.s:hover   { border-color:rgba(240,63,99,.4); box-shadow:0 18px 50px rgba(240,63,99,.2),0 0 0 1px rgba(240,63,99,.08); }
 
     .tc-glow {
       position:absolute; top:-50px; right:-50px;
@@ -340,7 +340,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EasyToLearn">
   <link rel="apple-touch-icon" href="assets/icon.png">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
 </head>
@@ -397,7 +397,7 @@
 
   <div class="hero-eyebrow">
     <span class="eyebrow-dot"></span>
-    Free · No Sign-up · Beginner Friendly · 142 Topics
+    Free · No Sign-up · Beginner Friendly · 107 Topics
   </div>
 
   <h1 class="hero-headline">
@@ -407,7 +407,7 @@
 
   <p class="hero-sub">
     Interactive animations you control. Plain-English explanations at three depths.
-    Instant quizzes with progress tracking. Four full learning tracks — zero to advanced.
+    Instant quizzes with progress tracking. Three full learning tracks — zero to advanced.
   </p>
 
   <div class="hero-btns">
@@ -416,15 +416,15 @@
 
   <div class="stats-row">
     <div class="stat-box">
-      <div class="stat-num"><span class="count" data-target="4">0</span><span class="acc">+</span></div>
+      <div class="stat-num"><span class="count" data-target="3">0</span><span class="acc">+</span></div>
       <div class="stat-lbl">Tracks</div>
     </div>
     <div class="stat-box">
-      <div class="stat-num"><span class="count" data-target="142">0</span><span class="acc">+</span></div>
+      <div class="stat-num"><span class="count" data-target="107">0</span><span class="acc">+</span></div>
       <div class="stat-lbl">Topics</div>
     </div>
     <div class="stat-box">
-      <div class="stat-num"><span class="count" data-target="426">0</span><span class="acc">+</span></div>
+      <div class="stat-num"><span class="count" data-target="321">0</span><span class="acc">+</span></div>
       <div class="stat-lbl">Quiz Questions</div>
     </div>
     <div class="stat-box">
@@ -497,21 +497,21 @@
       <div class="tc-cta"><span>Master Linux</span><span class="tc-arrow">→</span></div>
     </a>
 
-    <a href="python.html" class="tcard p reveal rd4">
+    <a href="security.html" class="tcard s reveal rd4">
       <div class="tc-glow"></div>
-      <div class="tc-icon">🐍</div>
+      <div class="tc-icon">🛡️</div>
       <div>
-        <div class="tc-meta">35 Topics · Basic → Advanced</div>
-        <div class="tc-title">Python for Security</div>
-        <div class="tc-desc">Script your way through security work. Sockets, requests, regex, hashing, and automation — build real tools for scanning, parsing, and defending systems.</div>
+        <div class="tc-meta">10 Topics · Basic → Advanced</div>
+        <div class="tc-title">Core Security Concepts</div>
+        <div class="tc-desc">The ideas every cybersecurity job needs. CIA triad, threats vs vulnerabilities, authentication, encryption, malware, and social engineering — in plain English.</div>
       </div>
       <div class="tc-tags">
-        <span class="tc-tag">Sockets & Requests</span>
-        <span class="tc-tag">Regex & Parsing</span>
-        <span class="tc-tag">Hashing & Crypto</span>
-        <span class="tc-tag">Automation</span>
+        <span class="tc-tag">CIA Triad</span>
+        <span class="tc-tag">Threats & Risks</span>
+        <span class="tc-tag">Encryption</span>
+        <span class="tc-tag">Social Engineering</span>
       </div>
-      <div class="tc-cta"><span>Start Scripting</span><span class="tc-arrow">→</span></div>
+      <div class="tc-cta"><span>Learn Security</span><span class="tc-arrow">→</span></div>
     </a>
 
   </div>
@@ -554,7 +554,7 @@
     <a href="foundation.html">Foundation</a>
     <a href="networking.html">Networking</a>
     <a href="linux.html">Linux</a>
-    <a href="python.html">Python</a>
+    <a href="security.html">Security</a>
   </div>
 </footer>
 
@@ -649,30 +649,7 @@ document.querySelectorAll('.tcard').forEach(card=>{
 // Service Worker
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(reg => {
-      // If an update is already waiting (common on mobile "Add to Home
-      // Screen" installs that rarely reopen fully), activate it now.
-      if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
-      reg.addEventListener('updatefound', () => {
-        const fresh = reg.installing;
-        if (!fresh) return;
-        fresh.addEventListener('statechange', () => {
-          if (fresh.state === 'installed' && navigator.serviceWorker.controller) {
-            fresh.postMessage('SKIP_WAITING');
-          }
-        });
-      });
-    }).catch(()=>{});
-    // Reload once when the new service worker takes control, so a phone
-    // stuck on an older, buggy worker gets a fully fresh page + fetch
-    // pipeline instead of silently failing (e.g. the login "Failed to
-    // fetch" issue caused by a stale worker intercepting API calls).
-    let _swRefreshed = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (_swRefreshed) return;
-      _swRefreshed = true;
-      window.location.reload();
-    });
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
   });
 }
 // PWA Install prompt

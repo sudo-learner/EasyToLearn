@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EasyToLearn">
   <link rel="apple-touch-icon" href="assets/icon.png">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
 </head>
@@ -66,7 +66,7 @@
         <a href="index.html">Home</a>
         <a href="networking.html">Networking</a>
         <a href="linux.html">Linux</a>
-        <a href="python.html">Python</a>
+        <a href="security.html">Security</a>
       </div>
     </div>
   </div>
@@ -126,30 +126,7 @@
 // Service Worker
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(reg => {
-      // If an update is already waiting (common on mobile "Add to Home
-      // Screen" installs that rarely reopen fully), activate it now.
-      if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
-      reg.addEventListener('updatefound', () => {
-        const fresh = reg.installing;
-        if (!fresh) return;
-        fresh.addEventListener('statechange', () => {
-          if (fresh.state === 'installed' && navigator.serviceWorker.controller) {
-            fresh.postMessage('SKIP_WAITING');
-          }
-        });
-      });
-    }).catch(()=>{});
-    // Reload once when the new service worker takes control, so a phone
-    // stuck on an older, buggy worker gets a fully fresh page + fetch
-    // pipeline instead of silently failing (e.g. the login "Failed to
-    // fetch" issue caused by a stale worker intercepting API calls).
-    let _swRefreshed = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (_swRefreshed) return;
-      _swRefreshed = true;
-      window.location.reload();
-    });
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
   });
 }
 // PWA Install prompt
