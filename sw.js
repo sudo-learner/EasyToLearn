@@ -1,6 +1,6 @@
 // EasyToLearn — Service Worker
 // Caches all site files so the app works offline after first load.
-const CACHE = 'easytolearn-v4';
+const CACHE = 'easytolearn-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -10,6 +10,7 @@ const ASSETS = [
   './networking.html',
   './linux.html',
   './topic.html',
+  './python.html',
   './security.html',
   './css/style.css',
   './js/icon.js',
@@ -19,6 +20,7 @@ const ASSETS = [
   './js/topics-data.js',
   './js/linux-topics-data.js',
   './js/foundation-topics-data.js',
+  './js/python-topics-data.js',
   './js/security-topics-data.js',
   './js/supabase-config.js',
   './js/auth.js',

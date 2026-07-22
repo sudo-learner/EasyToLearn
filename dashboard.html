@@ -220,6 +220,7 @@
         <a href="foundation.html">Foundation</a>
         <a href="networking.html">Networking</a>
         <a href="linux.html">Linux</a>
+        <a href="python.html">Python</a>
         <a href="security.html">Security</a>
       </div>
     </div>
@@ -230,6 +231,7 @@
 <script src="js/topics-data.js"></script>
 <script src="js/linux-topics-data.js"></script>
 <script src="js/foundation-topics-data.js"></script>
+<script src="js/python-topics-data.js"></script>
 <script src="js/security-topics-data.js"></script>
 <script>
 (async function () {
@@ -282,6 +284,16 @@ const tracks = [
     colorHex: '#F0A030',
     storageKey: 'etl_completed_foundation',
     topics: FOUNDATION_TOPICS
+  },
+  {
+    key:   'python',
+    label: 'Python for Security',
+    emoji: '🐍',
+    page:  'python.html',
+    color: 'var(--track-p)',
+    colorHex: '#3B82C4',
+    storageKey: 'etl_completed_python',
+    topics: PYTHON_TOPICS
   },
   {
     key:   'security',
